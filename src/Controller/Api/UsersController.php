@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Form\Type\UserFormType;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,21 +29,25 @@ class UsersController extends AbstractFOSRestController
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
     public function postAction(
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        Request $request
     ) {
         $user = new User();
         $date = new DateTimeImmutable();
 
-        $user->setName('Morgan');
-        $user->setEmail('test3@test.com');
-        $user->setCreatedAt($date);
-        $user->setUpdatedAt($date);
+        //Creamos el obj de la clase UserBookType
+        $form = $this->createForm(UserFormType::class, $user);
+        //Comprueba si se realiza un POST y maneja el form
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
 
+            $user->setCreatedAt($date);
+            $user->setUpdatedAt($date);
+            $em->persist($user);
+            $em->flush();
+            return $user;
+        }
 
-        /**doctrime tiene una entidad de la clase user */
-        $em->persist($user);
-        $em->flush();
-
-        return $user;
+        return $form;
     }
 }
