@@ -49,7 +49,6 @@ class UserController extends AbstractController
      */
     public function createUser(Request $request, EntityManagerInterface $em)
     {
-
         $user = new User();
         $response = new JsonResponse();
         $date = new DateTimeImmutable();
