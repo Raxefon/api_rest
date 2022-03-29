@@ -74,7 +74,7 @@ class UsersController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post(path="/update_user/{id}", requirements={"id"="\d+"})
+     * @Rest\Put(path="/update_user/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
     public function editAction(
@@ -92,9 +92,11 @@ class UsersController extends AbstractFOSRestController
 
         $userDto = new UserDto();
         $userDto = UserDto::createFromUser($user);
-        $form = $this->createForm(UserFormType::class, $userDto);
 
-        $form->handleRequest($request);
+        /*Como los formularios de symfony no se llevan bien con el metodo Put nos toca modificar el codigo*/
+        $content = json_decode($request->getContent(), true);
+        $form = $this->createForm(UserFormType::class, $userDto);
+        $form->submit($content);
 
         $userDto->createdAt = $user->getCreatedAt();
         $userDto->updatedAt = $date;
