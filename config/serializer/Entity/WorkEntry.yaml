@@ -1,0 +1,16 @@
+App\Entity\Workentry:
+  attributes:
+    id:
+      groups: ['workEntry']
+    user:
+      groups: ['workEntry']
+    createdAt:
+      groups: ['workEntry']
+    updatedAt:
+      groups: ['workEntry']
+    deletedAt:
+      groups: ['workEntry']
+    startDate:
+      groups: ['workEntry']
+    endDate:
+      groups: ['workEntry']

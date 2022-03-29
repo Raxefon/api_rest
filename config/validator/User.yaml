@@ -1,4 +1,4 @@
-App\Entity\User:
+App\Form\Model\UserDto:
     properties:
         name:
             - NotBlank: ~

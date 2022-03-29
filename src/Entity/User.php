@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -27,6 +29,14 @@ class User
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private $deletedAt;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: WorkEntry::class)]
+    private $workentry;
+
+    public function __construct()
+    {
+        $this->workentry = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,6 +99,36 @@ class User
     public function setDeletedAt(?\DateTimeImmutable $deletedAt): self
     {
         $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, WorkEntry>
+     */
+    public function getWorkentry(): Collection
+    {
+        return $this->workentry;
+    }
+
+    public function addWorkentry(WorkEntry $workentry): self
+    {
+        if (!$this->workentry->contains($workentry)) {
+            $this->workentry[] = $workentry;
+            $workentry->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWorkentry(WorkEntry $workentry): self
+    {
+        if ($this->workentry->removeElement($workentry)) {
+            // set the owning side to null (unless already changed)
+            if ($workentry->getUser() === $this) {
+                $workentry->setUser(null);
+            }
+        }
 
         return $this;
     }
