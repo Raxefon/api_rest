@@ -1,8 +1,8 @@
-App\Entity\Workentry:
+App\Entity\WorkEntry:
   attributes:
     id:
       groups: ['workEntry']
-    user:
+    user: 
       groups: ['workEntry']
     createdAt:
       groups: ['workEntry']

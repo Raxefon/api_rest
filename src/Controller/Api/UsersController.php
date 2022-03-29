@@ -20,7 +20,7 @@ class UsersController extends AbstractFOSRestController
      * @Rest\Get(path="/all_users")
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
-    public function getAction(
+    public function getActionUsers(
         UserRepository $userRepository
     ) {
         return $userRepository->findAll();
@@ -30,7 +30,7 @@ class UsersController extends AbstractFOSRestController
      * @Rest\Get(path="/user/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
-    public function getActionId(
+    public function getActionUserId(
         string $id,
         UserRepository $userRepository
 
@@ -42,14 +42,14 @@ class UsersController extends AbstractFOSRestController
      * @Rest\Post(path="/create_user")
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
-    public function postAction(
+    public function postActionCreateUser(
         EntityManagerInterface $em,
         Request $request
     ) {
         $userDto = new UserDto();
         $date = new DateTimeImmutable();
 
-        //Creamos el obj de la clase UserBookType
+        //Creamos el obj de la clase UserType
         $form = $this->createForm(UserFormType::class, $userDto);
         //Comprueba si se realiza un POST y maneja el form
         $form->handleRequest($request);
@@ -77,7 +77,7 @@ class UsersController extends AbstractFOSRestController
      * @Rest\Put(path="/update_user/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
-    public function editAction(
+    public function editActionUpdateUser(
         string $id,
         EntityManagerInterface $em,
         UserRepository $userRepository,
