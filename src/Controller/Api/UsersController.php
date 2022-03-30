@@ -2,14 +2,12 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\User;
-use App\Form\Model\UserDto;
-use App\Form\Type\UserFormType;
 use App\Repository\UserRepository;
-use DateTimeImmutable;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\UserFormProcessor;
+use App\Service\UserManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,9 +19,9 @@ class UsersController extends AbstractFOSRestController
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
     public function getActionUsers(
-        UserRepository $userRepository
+        UserManager $userManager
     ) {
-        return $userRepository->findAll();
+        return $userManager->getRepository()->findAll();
     }
 
     /**
@@ -31,92 +29,64 @@ class UsersController extends AbstractFOSRestController
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
     public function getActionUserId(
-        string $id,
-        UserRepository $userRepository
+        int $id,
+        UserManager $userManager
 
     ) {
-        return $userRepository->find($id);
+        return $userManager->find($id);
     }
 
     /**
      * @Rest\Post(path="/create_user")
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
-    public function postActionCreateUser(
-        EntityManagerInterface $em,
+    public function postAction(
+        UserFormProcessor $userFormProcessor,
+        UserManager $userManager,
         Request $request
     ) {
-        $userDto = new UserDto();
-        $date = new DateTimeImmutable();
-
-        //Creamos el obj de la clase UserType
-        $form = $this->createForm(UserFormType::class, $userDto);
-        //Comprueba si se realiza un POST y maneja el form
-        $form->handleRequest($request);
-        if (!$form->isSubmitted()) {
-
-            return new Response('', Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($form->isValid()) {
-
-            $user = new User();
-            $user->setName($userDto->name);
-            $user->setEmail($userDto->email);
-            $user->setCreatedAt($date);
-            $user->setUpdatedAt($date);
-            $em->persist($user);
-            $em->flush();
-            return $user;
-        }
-
-        return $form;
+        $user = $userManager->create();
+        [$user, $error] = ($userFormProcessor)($user, $request);
+        $statusCode = $user ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST;
+        $data = $user ?? $error;
+        return View::create($data, $statusCode);
     }
 
     /**
      * @Rest\Put(path="/update_user/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
      */
-    public function editActionUpdateUser(
-        string $id,
-        EntityManagerInterface $em,
-        UserRepository $userRepository,
+    public function editAction(
+
+        int $id,
+        UserFormProcessor $userFormProcessor,
+        UserManager $userManager,
         Request $request
     ) {
-        $date = new DateTimeImmutable();
-
-        $user = $userRepository->find($id);
+        $user = $userManager->find($id);
         if (!$user) {
-            throw $this->createNotFoundException('User not found');
+            return View::create('User not found', Response::HTTP_BAD_REQUEST);
         }
+        [$user, $error] = ($userFormProcessor)($user, $request);
+        $statusCode = $user ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST;
+        $data = $user ?? $error;
+        return View::create($data, $statusCode);
+    }
 
-        $userDto = new UserDto();
-        $userDto = UserDto::createFromUser($user);
+    /**
+     * @Rest\Delete(path="/delete_user/{id}", requirements={"id"="\d+"})
+     * @Rest\View(serializerGroups={"user"}, serializerEnableMaxDepthChecks=true)
+     */
+    public function deleteAction(
 
-        /*Como los formularios de symfony no se llevan bien con el metodo Put nos toca modificar el codigo*/
-        $content = json_decode($request->getContent(), true);
-        $form = $this->createForm(UserFormType::class, $userDto);
-        $form->submit($content);
-
-        $userDto->createdAt = $user->getCreatedAt();
-        $userDto->updatedAt = $date;
-
-        if (!$form->isSubmitted()) {
-
-            return new Response('', Response::HTTP_BAD_REQUEST);
+        int $id,
+        UserManager $userManager
+    ) {
+        $user = $userManager->find($id);
+        if (!$user) {
+            return View::create('User not found', Response::HTTP_BAD_REQUEST);
         }
-
-        if ($form->isValid()) {
-
-            $user->setName($userDto->name);
-            $user->setEmail($userDto->email);
-            $user->setCreatedAt($userDto->createdAt);
-            $user->setUpdatedAt($userDto->updatedAt);
-            $em->persist($user);
-            $em->flush();
-            return $user;
-        }
-
-        return $form;
+        $userManager->delete($user);
+        return View::create('User deleted', Response::HTTP_NO_CONTENT);
     }
 }

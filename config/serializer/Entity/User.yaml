@@ -8,3 +8,5 @@ App\Entity\User:
       groups: ['user']
     createdAt:
       groups: ['user']
+    updatedAt:
+      groups: ['user']
