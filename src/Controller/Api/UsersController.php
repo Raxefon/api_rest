@@ -21,7 +21,7 @@ class UsersController extends AbstractFOSRestController
     public function getActionUsers(
         UserManager $userManager
     ) {
-        return $userManager->getRepository()->findUsersNotDeleted();
+        return $userManager->findAll();
     }
 
     /**
@@ -33,13 +33,13 @@ class UsersController extends AbstractFOSRestController
         UserManager $userManager
 
     ) {
-        $result = $userManager->getRepository()->findUsersByIdNotDeleted($id);
+        $result = $userManager->find($id);
 
         if (!$result) {
             return View::create('User not found', Response::HTTP_BAD_REQUEST);
         }
 
-        return $userManager->getRepository()->findUsersByIdNotDeleted($id);
+        return $result;
     }
 
     /**
@@ -90,6 +90,7 @@ class UsersController extends AbstractFOSRestController
     ) {
         $date = new DateTimeImmutable();
         $user = $userManager->find($id);
+
         if (!$user) {
             return View::create('User not found', Response::HTTP_BAD_REQUEST);
         }

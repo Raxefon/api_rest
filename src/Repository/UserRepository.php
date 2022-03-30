@@ -60,7 +60,7 @@ class UserRepository extends ServiceEntityRepository
     // /**
     //  * @return User[] Returns an array of User objects
     //  */
-    public function findUsersByIdNotDeleted($id)
+    public function findUsersByIdNotDeleted($id): ?User
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.deletedAt is NULL')
@@ -68,7 +68,7 @@ class UserRepository extends ServiceEntityRepository
             ->setParameter('val', $id)
             ->orderBy('u.id', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
     }
 
     // /**

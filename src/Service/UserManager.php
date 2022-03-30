@@ -18,9 +18,14 @@ class UserManager
         $this->userRepository = $userRepository;
     }
 
-    public function find(int $id): ?User
+    public function findAll()
     {
-        return $this->userRepository->find($id);
+        return $this->userRepository->findUsersNotDeleted();
+    }
+
+    public function find(int $id)
+    {
+        return $this->userRepository->findUsersByIdNotDeleted($id);
     }
 
     public function getRepository(): UserRepository
