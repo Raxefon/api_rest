@@ -5,10 +5,13 @@ namespace App\Controller\Api;
 use App\Form\Model\WorkEntryDto;
 use App\Form\Type\WorkEntryFormType;
 use App\Repository\WorkEntryRepository;
+use App\Service\WorkEntryFormProcessor;
+use App\Service\WorkEntryManager;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,10 +23,10 @@ class WorkEntryController extends AbstractFOSRestController
      * @Rest\View(serializerGroups={"workEntry"}, serializerEnableMaxDepthChecks=true)
      */
     public function getActions(
-        WorkEntryRepository $workEntryRepository
+        WorkEntryManager $workEntryManager
     ) {
 
-        return $workEntryRepository->findAll();
+        return $workEntryManager->getRepository()->findAll();
     }
 
     /**
@@ -32,22 +35,26 @@ class WorkEntryController extends AbstractFOSRestController
      */
     public function getActionWorkEntryId(
         string $id,
-        WorkEntryRepository $workEntryRepository
+        WorkEntryManager $workEntryManager
 
     ) {
-        return $workEntryRepository->find($id);
+        return $workEntryManager->find($id);
     }
 
     /**
-     * @Rest\Get(path="/workEntryUser/{userid}", requirements={"id"="\d+"})
+     * @Rest\Post(path="/create_workEntry")
      * @Rest\View(serializerGroups={"workEntry"}, serializerEnableMaxDepthChecks=true)
      */
-    public function getActionWorkEntryUserId(
-        string $userid,
-        WorkEntryRepository $workEntryRepository
-
+    public function postAction(
+        WorkEntryFormProcessor $workEntryFormProcessor,
+        WorkEntryManager $workEntryManager,
+        Request $request
     ) {
-        return $workEntryRepository->findBy(array('user' => $userid));
+        $workEntry = $workEntryManager->create();
+        [$workEntry, $error] = ($workEntryFormProcessor)($workEntry, $request);
+        $statusCode = $workEntry ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST;
+        $data = $workEntry ?? $error;
+        return View::create($data, $statusCode);
     }
 
     /**

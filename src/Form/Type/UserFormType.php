@@ -14,7 +14,8 @@ class UserFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class)
-            ->add('email', TextType::class);
+            ->add('email', TextType::class)
+            ->add('updatedAt');
     }
 
     public function configureOptions(OptionsResolver $resolver)
