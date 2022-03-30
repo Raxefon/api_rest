@@ -18,9 +18,9 @@ class WorkEntryManager
         $this->workEntryRepository = $workEntryRepository;
     }
 
-    public function findAll()
+    public function findUserId(int $id)
     {
-        return $this->workEntryRepository->findWorkEntry();
+        return $this->workEntryRepository->findWorkEntryByUserId($id);
     }
 
     public function find(int $id): ?WorkEntry

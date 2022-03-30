@@ -40,36 +40,47 @@ class WorkEntryFormProcessor
 
         if ($form->isValid()) {
 
+            //Con estas dos lineas se podría modificar el ID de usuario//
             //Obtenemos el obj User
-            $user = $userManager->find($workEntryDto->user);
+            //$user = $userManager->find($workEntryDto->user);
+            //$workEntry->setUser($user);
 
-            $workEntry->setUser($user);
-
-            if ($workEntry->getCreatedAt()) {
+            if (!$workEntry->getCreatedAt()) {
 
                 $workEntry->setCreatedAt($date);
             }
 
-            if ($workEntry->getUpdatedAt()) {
+            $workEntry->setUpdatedAt($date);
 
-                $workEntry->setUpdatedAt($date);
-            }
-
-            if (!$workEntryDto->createdAt) {
+            if ($workEntryDto->startDate) {
                 //Convertirmos a DateTimeInmutable
-                $updatedAt = new DateTimeImmutable($workEntryDto->updatedAt);
-                $workEntry->setUpdatedAt($updatedAt);
+                $startDate = new DateTimeImmutable($workEntryDto->startDate);
+
+                //Comprobamos que exista endDate
+                if ($workEntry->getEndDate()) {
+                    //Comprobamos que no sea mayor que endDate
+                    if ($startDate > $workEntry->getEndDate()) {
+                        return [null, 'startDate cannot be greater than endDate'];
+                    }
+                }
+
+                $workEntry->setStartDate($startDate);
+            } else {
+                $workEntry->setStartDate($date);
             }
 
-            if (!$workEntryDto->endDate) {
+            if ($workEntryDto->endDate) {
+
                 //Convertirmos a DateTimeInmutable
                 $endDate = new DateTimeImmutable($workEntryDto->endDate);
+
+                //Comprobamos que no sea menos que startDate
+                if ($endDate < $workEntry->getStartDate()) {
+                    return [null, 'endDate cannot be less than startDate'];
+                }
+
                 $workEntry->setEndDate($endDate);
             }
-
-            //Convertirmos a DateTimeInmutable
-            $startDate = new DateTimeImmutable($workEntryDto->startDate);
-            $workEntry->setStartDate($startDate);
 
             $this->workEntryManager->save($workEntry);
             $this->workEntryManager->reload($workEntry);

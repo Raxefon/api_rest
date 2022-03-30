@@ -20,14 +20,15 @@ class WorkEntryController extends AbstractFOSRestController
 {
 
     /**
-     * @Rest\Get(path="/all_workEntry")
+     * @Rest\Get(path="/workEntryByUserId/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"workEntry"}, serializerEnableMaxDepthChecks=true)
      */
     public function getActions(
+        int $id,
         WorkEntryManager $workEntryManager
     ) {
 
-        return $workEntryManager->findAll();
+        return $workEntryManager->findUserId($id);
     }
 
     /**
@@ -35,9 +36,8 @@ class WorkEntryController extends AbstractFOSRestController
      * @Rest\View(serializerGroups={"workEntry"}, serializerEnableMaxDepthChecks=true)
      */
     public function getActionWorkEntryId(
-        string $id,
+        int $id,
         WorkEntryManager $workEntryManager
-
     ) {
         return $workEntryManager->find($id);
     }
@@ -81,5 +81,31 @@ class WorkEntryController extends AbstractFOSRestController
         $statusCode = $workEntry ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST;
         $data = $workEntry ?? $error;
         return View::create($data, $statusCode);
+    }
+
+    /**
+     * @Rest\Delete(path="/delete_workEntry/{id}", requirements={"id"="\d+"})
+     * @Rest\View(serializerGroups={"workEntry"}, serializerEnableMaxDepthChecks=true)
+     */
+    public function deleteAction(
+
+        int $id,
+        WorkEntryManager $workEntryManager
+    ) {
+        $date = new DateTimeImmutable();
+        $workEntry = $workEntryManager->find($id);
+
+        if (!$workEntry) {
+            return View::create('WorkEntry not found', Response::HTTP_BAD_REQUEST);
+        }
+
+        //Estas lineas para guardar el registro deletedAt en vez de borrar el registro
+        $workEntry->setDeletedAt($date);
+        $workEntryManager->save($workEntry);
+        $workEntryManager->reload($workEntry);
+
+        //Con esto se borraria el registro de la BBDD
+        //$userManager->delete($user);
+        return View::create('User deleted', Response::HTTP_NO_CONTENT);
     }
 }

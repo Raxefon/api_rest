@@ -46,12 +46,14 @@ class WorkEntryRepository extends ServiceEntityRepository
     }
 
     // /**
-    //  * @return WorkEntry[] Returns an array of User objects
+    //  * @return WorkEntryByUserId[] Returns an array of User objects
     //  */
-    public function findWorkEntry()
+    public function findWorkEntryByUserId($id)
     {
         return $this->createQueryBuilder('w')
             ->andWhere('w.deletedAt is NULL')
+            ->andWhere('w.user = :val')
+            ->setParameter('val', $id)
             ->orderBy('w.id', 'ASC')
             ->getQuery()
             ->getResult();

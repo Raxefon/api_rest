@@ -53,7 +53,7 @@ class UserFormProcessor
                 $user->setCreatedAt($date);
             }
 
-            if (!$userDto->updatedAt) {
+            if ($userDto->updatedAt) {
                 //Convertirmos a DateTimeInmutable
                 $updatedAt = new DateTimeImmutable($userDto->updatedAt);
                 $user->setUpdatedAt($updatedAt);
