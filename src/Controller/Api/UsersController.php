@@ -2,7 +2,6 @@
 
 namespace App\Controller\Api;
 
-use App\Repository\UserRepository;
 use App\Service\UserFormProcessor;
 use App\Service\UserManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;

@@ -55,6 +55,6 @@ class UserFormProcessor
             return [$user, null];
         }
 
-        return [null, $user];
+        return [null, $form];
     }
 }
