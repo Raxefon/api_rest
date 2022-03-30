@@ -20,12 +20,12 @@ class UserManager
 
     public function findAll()
     {
-        return $this->userRepository->findUsersNotDeleted();
+        return $this->userRepository->findUsers();
     }
 
     public function find(int $id)
     {
-        return $this->userRepository->findUsersByIdNotDeleted($id);
+        return $this->userRepository->findUsersById($id);
     }
 
     public function getRepository(): UserRepository

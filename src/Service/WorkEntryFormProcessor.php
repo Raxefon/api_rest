@@ -17,13 +17,13 @@ class WorkEntryFormProcessor
     public function __construct(
 
         WorkEntryManager $workEntryManager,
-        FormFactoryInterface $formFactory
+        FormFactoryInterface $formFactory,
     ) {
         $this->workEntryManager = $workEntryManager;
         $this->formFactory = $formFactory;
     }
 
-    public function __invoke(WorkEntry $workEntry, Request $request): array
+    public function __invoke(WorkEntry $workEntry, Request $request, UserManager $userManager): array
     {
         $date = new DateTimeImmutable();
         $workEntryDto = WorkEntryDto::createFormWorkEntry($workEntry);
@@ -40,13 +40,40 @@ class WorkEntryFormProcessor
 
         if ($form->isValid()) {
 
-            $workEntry->setUser($workEntryDto->user);
-            $workEntry->setCreatedAt($date);
-            $workEntry->setUpdatedAt($date);
-            $workEntry->setStartDate($date);
+            //Obtenemos el obj User
+            $user = $userManager->find($workEntryDto->user);
+
+            $workEntry->setUser($user);
+
+            if ($workEntry->getCreatedAt()) {
+
+                $workEntry->setCreatedAt($date);
+            }
+
+            if ($workEntry->getUpdatedAt()) {
+
+                $workEntry->setUpdatedAt($date);
+            }
+
+            if (!$workEntryDto->createdAt) {
+                //Convertirmos a DateTimeInmutable
+                $updatedAt = new DateTimeImmutable($workEntryDto->updatedAt);
+                $workEntry->setUpdatedAt($updatedAt);
+            }
+
+            if (!$workEntryDto->endDate) {
+                //Convertirmos a DateTimeInmutable
+                $endDate = new DateTimeImmutable($workEntryDto->endDate);
+                $workEntry->setEndDate($endDate);
+            }
+
+            //Convertirmos a DateTimeInmutable
+            $startDate = new DateTimeImmutable($workEntryDto->startDate);
+            $workEntry->setStartDate($startDate);
 
             $this->workEntryManager->save($workEntry);
             $this->workEntryManager->reload($workEntry);
+
             return [$workEntry, null];
         }
 

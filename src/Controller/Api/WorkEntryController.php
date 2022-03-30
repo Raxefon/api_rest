@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Form\Model\WorkEntryDto;
 use App\Form\Type\WorkEntryFormType;
 use App\Repository\WorkEntryRepository;
+use App\Service\UserManager;
 use App\Service\WorkEntryFormProcessor;
 use App\Service\WorkEntryManager;
 use DateTimeImmutable;
@@ -26,7 +27,7 @@ class WorkEntryController extends AbstractFOSRestController
         WorkEntryManager $workEntryManager
     ) {
 
-        return $workEntryManager->getRepository()->findAll();
+        return $workEntryManager->findAll();
     }
 
     /**
@@ -48,12 +49,14 @@ class WorkEntryController extends AbstractFOSRestController
     public function postAction(
         WorkEntryFormProcessor $workEntryFormProcessor,
         WorkEntryManager $workEntryManager,
-        Request $request
+        Request $request,
+        UserManager $userManager
     ) {
         $workEntry = $workEntryManager->create();
-        [$workEntry, $error] = ($workEntryFormProcessor)($workEntry, $request);
+        [$workEntry, $error] = ($workEntryFormProcessor)($workEntry, $request, $userManager);
         $statusCode = $workEntry ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST;
         $data = $workEntry ?? $error;
+
         return View::create($data, $statusCode);
     }
 
@@ -61,44 +64,22 @@ class WorkEntryController extends AbstractFOSRestController
      * @Rest\Put(path="/update_workEntry/{id}", requirements={"id"="\d+"})
      * @Rest\View(serializerGroups={"workEntry"}, serializerEnableMaxDepthChecks=true)
      */
-    public function editActionUpdateWorkEntry(
+    public function editAction(
         string $id,
-        EntityManagerInterface $em,
-        WorkEntryRepository $workEntryRepository,
-        Request $request
+        WorkEntryFormProcessor $workEntryFormProcessor,
+        WorkEntryManager $workEntryManager,
+        Request $request,
+        UserManager $userManager
     ) {
-        $date = new DateTimeImmutable();
+        $workEntry = $workEntryManager->find($id);
 
-        $workEntry = $workEntryRepository->find($id);
         if (!$workEntry) {
-            throw $this->createNotFoundException('WorkEntry not found');
+            return View::create('User not found', Response::HTTP_BAD_REQUEST);
         }
 
-        $workEntryDto = new WorkEntryDto();
-        $workEntryDto = WorkEntryDto::createFormWorkEntry($workEntry);
-
-        $content = json_decode($request->getContent(), true);
-        $form = $this->createForm(WorkEntryFormType::class, $workEntryDto);
-        $form->submit($content);
-
-        $workEntryDto->createdAt = $workEntry->getCreatedAt();
-        $workEntryDto->updatedAt = $date;
-
-        if (!$form->isSubmitted()) {
-
-            return new Response('', Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($form->isValid()) {
-
-            $workEntry->setCreatedAt($workEntryDto->createdAt);
-            $workEntry->setUpdatedAt($workEntryDto->updatedAt);
-            $workEntry->setUpdatedAt($workEntryDto->startDate);
-            $em->persist($workEntry);
-            $em->flush();
-            return $workEntry;
-        }
-
-        return $form;
+        [$workEntry, $error] = ($workEntryFormProcessor)($workEntry, $request, $userManager);
+        $statusCode = $workEntry ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST;
+        $data = $workEntry ?? $error;
+        return View::create($data, $statusCode);
     }
 }

@@ -12,7 +12,10 @@ class WorkEntryFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('startDate');
+            ->add('user')
+            ->add('updatedAt')
+            ->add('startDate')
+            ->add('endDate');
     }
 
     public function configureOptions(OptionsResolver $resolver)

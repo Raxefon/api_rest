@@ -46,6 +46,32 @@ class WorkEntryRepository extends ServiceEntityRepository
     }
 
     // /**
+    //  * @return WorkEntry[] Returns an array of User objects
+    //  */
+    public function findWorkEntry()
+    {
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.deletedAt is NULL')
+            ->orderBy('w.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    // /**
+    //  * @return WorkEntry[] Returns an array of User objects
+    //  */
+    public function findWorkEntryById($id): ?WorkEntry
+    {
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.deletedAt is NULL')
+            ->andWhere('w.id = :val')
+            ->setParameter('val', $id)
+            ->orderBy('w.id', 'ASC')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    // /**
     //  * @return WorkEntry[] Returns an array of WorkEntry objects
     //  */
     /*
