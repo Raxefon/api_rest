@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Service\UserFormProcessor;
 use App\Service\UserManager;
+use DateTimeImmutable;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
@@ -20,7 +21,7 @@ class UsersController extends AbstractFOSRestController
     public function getActionUsers(
         UserManager $userManager
     ) {
-        return $userManager->getRepository()->findAll();
+        return $userManager->getRepository()->findUsersNotDeleted();
     }
 
     /**
@@ -32,7 +33,13 @@ class UsersController extends AbstractFOSRestController
         UserManager $userManager
 
     ) {
-        return $userManager->find($id);
+        $result = $userManager->getRepository()->findUsersByIdNotDeleted($id);
+
+        if (!$result) {
+            return View::create('User not found', Response::HTTP_BAD_REQUEST);
+        }
+
+        return $userManager->getRepository()->findUsersByIdNotDeleted($id);
     }
 
     /**
@@ -81,11 +88,19 @@ class UsersController extends AbstractFOSRestController
         int $id,
         UserManager $userManager
     ) {
+        $date = new DateTimeImmutable();
         $user = $userManager->find($id);
         if (!$user) {
             return View::create('User not found', Response::HTTP_BAD_REQUEST);
         }
-        $userManager->delete($user);
+
+        //Estas lineas para guardar el registro deletedAt en vez de borrar el registro
+        $user->setDeletedAt($date);
+        $userManager->save($user);
+        $userManager->reload($user);
+
+        //Con esto se borraria el registro de la BBDD
+        //$userManager->delete($user);
         return View::create('User deleted', Response::HTTP_NO_CONTENT);
     }
 }

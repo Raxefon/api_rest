@@ -40,10 +40,15 @@ class UserFormProcessor
 
         if ($form->isValid()) {
 
-            $user->setName($userDto->name);
-            $user->setEmail($userDto->email);
+            if ($userDto->name) {
+                $user->setName($userDto->name);
+            }
 
-            if ($user->getCreatedAt() == null) {
+            if ($userDto->email) {
+                $user->setEmail($userDto->email);
+            }
+
+            if (!$user->getCreatedAt()) {
 
                 $user->setCreatedAt($date);
             }

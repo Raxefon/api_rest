@@ -52,4 +52,10 @@ class UserManager
         $this->em->remove($user);
         $this->em->flush();
     }
+
+    public function UpdateFieldDelete(User $user)
+    {
+        $this->em->persist($user);
+        $this->em->flush();
+    }
 }

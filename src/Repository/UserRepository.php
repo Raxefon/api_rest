@@ -48,6 +48,32 @@ class UserRepository extends ServiceEntityRepository
     // /**
     //  * @return User[] Returns an array of User objects
     //  */
+    public function findUsersNotDeleted()
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.deletedAt is NULL')
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    // /**
+    //  * @return User[] Returns an array of User objects
+    //  */
+    public function findUsersByIdNotDeleted($id)
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.deletedAt is NULL')
+            ->andWhere('u.id = :val')
+            ->setParameter('val', $id)
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    // /**
+    //  * @return User[] Returns an array of User objects
+    //  */
     /*
     public function findByExampleField($value)
     {
