@@ -13,14 +13,6 @@ Docker ps
 Entramos a nuestro contenedor:
 docker exec -it api_sesame_php_1 bash
 
-Como no hemos comenzado con docker, borraremos la carpeta vendor del proyecto.
-
-Desde dentro del contenedor ejecutaremos:
-Composer install
-
-El composer.json no contiene el bundle FOS REST( rest-bundle) así que ejecutamos:
-Composer require friendsofsymfony/rest-bundle
-
 Volver a crear las migraciones:
 bin/console doctrine:migrations:migrate
 
