@@ -53,11 +53,14 @@ class UserFormProcessor
                 $user->setCreatedAt($date);
             }
 
+            $user->setUpdatedAt($date);
+            /*
             if ($userDto->updatedAt || !$user->getUpdatedAt()) {
                 //Convertirmos a DateTimeInmutable
                 $updatedAt = new DateTimeImmutable($userDto->updatedAt);
                 $user->setUpdatedAt($updatedAt);
             }
+            */
 
             $this->userManager->save($user);
             $this->userManager->reload($user);
