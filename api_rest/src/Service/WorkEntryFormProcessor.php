@@ -42,8 +42,13 @@ class WorkEntryFormProcessor
 
             //Con estas dos lineas se podría modificar el ID de usuario//
             //Obtenemos el obj User
-            //$user = $userManager->find($workEntryDto->user);
-            //$workEntry->setUser($user);
+            $user = $userManager->find($workEntryDto->user);
+
+            if (!$user) {
+                return [null, 'User not exist'];
+            }
+
+            $workEntry->setUser($user);
 
             if (!$workEntry->getCreatedAt()) {
 
@@ -84,6 +89,8 @@ class WorkEntryFormProcessor
 
             $this->workEntryManager->save($workEntry);
             $this->workEntryManager->reload($workEntry);
+
+
 
             return [$workEntry, null];
         }

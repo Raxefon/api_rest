@@ -48,12 +48,12 @@ class UserFormProcessor
                 $user->setEmail($userDto->email);
             }
 
-            if ($user->getCreatedAt()) {
+            if (!$user->getCreatedAt()) {
 
                 $user->setCreatedAt($date);
             }
 
-            if ($userDto->updatedAt) {
+            if ($userDto->updatedAt || !$user->getUpdatedAt()) {
                 //Convertirmos a DateTimeInmutable
                 $updatedAt = new DateTimeImmutable($userDto->updatedAt);
                 $user->setUpdatedAt($updatedAt);
