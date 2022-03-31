@@ -13,10 +13,10 @@ docker ps
 Entramos a nuestro contenedor:
 docker exec -it api_sesame_php_1 bash
 
-Crear las migraciones:
+Se crean las bases de datos:
 bin/console doctrine:migrations:migrate
 
-Una vez ya hemos realizado la migracion en postman se prueba:
+Una vez ya realizada la migracion, se comprueba en postman:
 
 # Entidad USER
 
