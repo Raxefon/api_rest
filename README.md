@@ -17,4 +17,35 @@ Crear las migraciones:
 bin/console doctrine:migrations:migrate
 
 Una vez ya hemos realizado la migracion en postman se prueba:
-http://127.0.0.1/api/all_users
+
+-Entidad USER-
+Mostrar todos los usuarios:
+GET http://127.0.0.1/api/all_users
+
+Crear usuario:
+POST http://127.0.0.1/api/create_user
+
+body:
+{
+  "name": "test",
+  "email": "test@test.com"
+}
+  
+Mostrar usuario por id:
+GET http://127.0.0.1/api/user/{id}
+
+Actualizar usuario:
+PUT http://127.0.0.1/api/update_user/{id}
+
+body:
+{
+	"name": "test2",
+	"email": "test2@test.com"
+}
+
+Borrar usuario:
+http://127.0.0.1/api/delete_user/{id}
+
+
+  
+ 
